@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Form
+from fastapi.middleware.cors import CORSMiddleware
 
 import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
@@ -11,6 +12,16 @@ nltk.download('punkt')
 nltk.download('stopwords')
 
 app = FastAPI()
+# Configure CORS settings
+origins = ["*"]  # Replace "*" with the specific origin(s) from which you want to allow requests.
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post('/summarize/')
 async def summarize_text(text: str = Form(...)):
