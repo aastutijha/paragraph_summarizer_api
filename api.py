@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException, Form
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel  # Import the BaseModel from pydantic
 
 import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
@@ -12,6 +13,7 @@ nltk.download('punkt')
 nltk.download('stopwords')
 
 app = FastAPI()
+
 # Configure CORS settings
 origins = ["*"]  # Replace "*" with the specific origin(s) from which you want to allow requests.
 
@@ -23,8 +25,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post('/summarize/')
-async def summarize_text(text: str = Form(...)):
+# Define a Pydantic model for the request
+class SummarizeRequest(BaseModel):
+    text: str
+
+# Use the Pydantic model as a parameter
+@app.post('/summarize/', response_model=dict)
+async def summarize_text(request_data: SummarizeRequest):
+    text = request_data.text  # Get the "text" field from the JSON request
+
     try:
         # Tokenize the text into sentences and words
         sentences = sent_tokenize(text)
